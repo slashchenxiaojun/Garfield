@@ -8,10 +8,9 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.hacker.cas</groupId>
-  <artifactId>CAS</artifactId>
+  <artifactId>Garfield-CAS</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>CAS</name>
-  <url>http://maven.apache.org</url>
+  <name>Garfield-CAS</name>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
