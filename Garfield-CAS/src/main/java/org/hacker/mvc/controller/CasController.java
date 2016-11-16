@@ -1,22 +1,25 @@
 package org.hacker.mvc.controller;
 
-import static org.hacker.common.Assert.*;
+import static org.hacker.common.Assert.checkNotNull;
 
 import org.apache.log4j.Logger;
 import org.hacker.cas.sso.CAS;
 import org.hacker.cas.sso.Credentials;
 import org.hacker.common.CodeKit;
+import org.hacker.common.ProKit;
+import org.hacker.common.WebKit;
 import org.hacker.core.BaseController;
 import org.hacker.core.Dict;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.ehcache.CacheKit;
 
 /**
  * 
  * 全局返回代码说明 
- * 40010: 用户浏览器TCG失效(用户还未登陆，或者TCG已经过期) 
- * 40011: CAS服务端session失效(用户还未登陆，或者TCT已经过期)
+ * 40010: 用户浏览器TCG失效(用户还未登陆，或者TGC已经过期) 
+ * 40011: CAS服务端session失效(用户还未登陆，或者TGT已经过期)
  * 41010: ST 失效或者错误
  * 41011: ST sha效验失败
  * 500: 代码Exception
@@ -26,27 +29,27 @@ import com.jfinal.plugin.ehcache.CacheKit;
  */
 public class CasController extends BaseController implements CAS {
 	Logger log = Logger.getLogger(CasController.class);
-	private final static String TGC = "Ticket_Granting_Cookie";
 	
 	// 登陆是否需要验证码
 	static boolean identifyingCode = false;
 	// 秘钥效验ST的安全性
 	static String secretKey;
 	static {
-		
+		secretKey = ProKit.getInfo("play", "cas.secretkey");
 	}
-	
+
 	public void index() {
 		try {
 			String callBackUrl = getPara("url");
 			checkNotNull(callBackUrl, "url");
-			
 			ticketGrantingService(callBackUrl);
 		} catch (Exception e) {
 			Error(500, e.getMessage());
 		}
 	}
 
+	public void login() {}
+	
 	public void credentialsAuthentication() {
 		try {
 			String 
@@ -63,7 +66,8 @@ public class CasController extends BaseController implements CAS {
 				String TGT = generateTicket();
 				CacheKit.put(Dict.CACHE_TGT, TGT, user);
 				setCookie(TGC, TGT, -1);
-				redirectCasClientTakeServiceTicket(TGT, url);
+				OK();
+//				redirectCasClientTakeServiceTicket(TGT, url);
 			} else {
 				Error(500, "Oop! credentials authentication fail.");
 			}
@@ -80,11 +84,13 @@ public class CasController extends BaseController implements CAS {
 			casServiceTicket = getPara("casServiceTicket");
 			checkNotNull(sign, "sign");
 			checkNotNull(casServiceTicket, "casServiceTicket");
+			
 			String TGT = CacheKit.get(Dict.CACHE_ST, casServiceTicket);
 			if(StrKit.isBlank(TGT)) {
 				Error(41010, "Oop! Illegal or Invalid casServiceTicket.");
 				return;
 			}
+			
 			StringBuffer sb = new StringBuffer();
 			sb.
 			append("casServiceTicket=" + casServiceTicket + "&").
@@ -121,7 +127,10 @@ public class CasController extends BaseController implements CAS {
 //		if() {
 //			
 //		}
-		return null;
+		// 模拟一个用户
+		JSONObject user = new JSONObject();
+		user.put("username", credentials.username);
+		return user;
 	}
 
 	@Override
@@ -135,6 +144,12 @@ public class CasController extends BaseController implements CAS {
 		redirectCasClientTakeServiceTicket(TGT, callBackUrl);
 	}
 	
+	public void redirectCasClientTakeServiceTicket() {
+		String TGT = getCookie(TGC);
+		String callBackUrl = getPara("url");
+		redirectCasClientTakeServiceTicket(TGT, callBackUrl);
+	}
+	
 	private void redirectCasClientTakeServiceTicket(String TGT, String callBackUrl) {
 		Object user = CacheKit.get(Dict.CACHE_TGT, TGT);
 		// 如果TGT为null跳转到login.html
@@ -144,7 +159,9 @@ public class CasController extends BaseController implements CAS {
 			// 重定向到app端并带上ST票据
 			String ST = generateTicket();
 			CacheKit.put(Dict.CACHE_ST, ST, TGT);
-			redirect(callBackUrl + "?casServiceTicket=" + ST);
+			callBackUrl = WebKit.getURLDecoder(callBackUrl, "UTF-8");
+			callBackUrl = callBackUrl + (callBackUrl.contains("?") ? "&" : "?");
+			redirect(callBackUrl + "casServiceTicket=" + ST);
 		}
 	}
 	

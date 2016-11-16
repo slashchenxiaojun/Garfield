@@ -35,7 +35,7 @@ public class RoutePlugin implements IPlugin{
     
     private List<File> files;
 
-    private String prefix = "com.zjhcsoft.mvc.controller";
+    private String prefix = "org.hacker.mvc.controller";
     
 	public RoutePlugin(Routes me){
 		this.me = me;
@@ -54,7 +54,7 @@ public class RoutePlugin implements IPlugin{
 			//得到该CLASSPATH的URL路径
 			String classpath = PathKit.getRootClassPath();
 			//兼容JBOSS7.1.0-Final,classpath的问题
-			classpath = PathKit.getWebRootPath();
+//			classpath = PathKit.getWebRootPath();
 			log.info("root classpath:" + classpath);
 			File root = new File(classpath);
 			//遍历CLASSPATH下的所有.class文件并复制到files中

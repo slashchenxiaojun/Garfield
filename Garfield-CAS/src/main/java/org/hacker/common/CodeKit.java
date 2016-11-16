@@ -106,11 +106,9 @@ public class CodeKit {
             throw new UnexpectedException(e);
         }
     }
-
 }
 
 class UnexpectedException extends RuntimeException {
-	
 	private static final long serialVersionUID = 3800280551585038418L;
 
 	public UnexpectedException(String message) {

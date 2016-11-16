@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import org.beetl.ext.jfinal.BeetlRenderFactory;
 import org.hacker.aop.handler.GlobalHandler;
 import org.hacker.core.Dict;
-import org.hacker.core.plugin.ModelPlugin;
 import org.hacker.core.plugin.RoutePlugin;
 import org.hacker.core.plugin.SqlMapPlugin;
 import org.hacker.mvc.controller.HomeController;
@@ -21,7 +20,6 @@ import com.jfinal.config.Routes;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.druid.DruidPlugin;
-import com.jfinal.plugin.druid.DruidStatViewHandler;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.mysql.jdbc.Connection;
 

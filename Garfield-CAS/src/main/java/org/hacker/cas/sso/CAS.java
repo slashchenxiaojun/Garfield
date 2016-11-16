@@ -47,6 +47,7 @@ package org.hacker.cas.sso;
  *
  */
 public interface CAS {
+	public final static String TGC = "Ticket_Granting_Cookie";
 	/**
 	 * AS服务需要实现认证用户credentials，并且发放TGT票据给cas server
 	 * @param credentials 用户认证对象

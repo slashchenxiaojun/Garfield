@@ -16,48 +16,50 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2015-03-28
  * **/
 public class WebKit {
-	/**
-	 * 获取绝对全局路径（根url，包含Java容器的content（TOMCAT,JBOSS等））
-	 * */
-	public static String getPath(HttpServletRequest request){
-		String base = request.getScheme() + "://" + 
-		request.getServerName() + (request.getServerPort() == 80 ? "" : ":" + 
-		request.getServerPort()) + request.getContextPath();		
-		//jetty的getContextPath在结尾有一个'/',这里把它去掉
-		return base.substring(0, base.length());
+	
+	private static Location getLocation(HttpServletRequest request) {
+		Location location = new Location();
+		location.hash = "";
+		location.search = request.getQueryString() == null ? "" : "?" + request.getQueryString();
+		location.protocol = request.getScheme();
+		location.hostname = request.getServerName();
+		location.pathname = request.getRequestURI();
+		location.port = request.getServerPort() == 80 ? "" : request.getServerPort() + "";
+		location.host = location.hostname + (location.port.equals("") ? "" : ":" + location.port);
+		location.origin = location.protocol + "://" + location.host;
+		location.href = location.origin + location.pathname + location.search + location.hash;
+		return location;
 	}
+	
 	/**
-	 * 获取现有URI字符串（包含servletPath），包括请求参数（多个参数用‘，’分割）
+	 * 获取绝对全局路径
 	 * */
-	public static String getPathAndParamter(HttpServletRequest request){
+	public static String getPath(HttpServletRequest request) {
+		Location location = getLocation(request);
+		return location.origin;
+	}
+	
+	/**
+	 * 获取现有URI字符串(包含servletPath)，包括请求参数(多个参数用','分割)
+	 * */
+	public static String getPathAndParamter(HttpServletRequest request) {
 		Map<String, String[]> params = request.getParameterMap();
-		String uri = getPath(request) + request.getServletPath();
+		String uri = getPath(request) + request.getRequestURI();
 		if(params.size() == 0)
 			return uri;
 		else{
 			uri += "?";
 		}
-		for(String key : params.keySet()){
+		for(String key : params.keySet()) {
 			uri += key + "=";
-				for(String value : params.get(key)){
+				for(String value : params.get(key)) {
 						uri += value + ",";
 				}
 			uri = uri.substring(0,uri.length()-1) + "&";
 		}
 		return uri.substring(0,uri.length()-1);
 	}
-	/**
-	 * 获取现有URI字符串根据enc进行URL编码，包括请求参数（多个参数用‘，’分割）
-	 * */
-	public static String getPathAndParamterURLEncoder(HttpServletRequest request,String enc){
-		try {
-			return URLEncoder.encode(getPathAndParamter(request),enc);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
-	}
+	
 	/**
 	 * URL反编码
 	 * 
@@ -65,11 +67,10 @@ public class WebKit {
 	 * @param enc 编码
 	 * @throws UnsupportedEncodingException
 	 * */
-	public static String getURLDecoder(String url, String enc){
+	public static String getURLDecoder(String url, String enc) {
 		try {
 			return URLDecoder.decode(url, enc);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "";
@@ -82,13 +83,25 @@ public class WebKit {
 	 * @param enc 编码
 	 * @throws UnsupportedEncodingException
 	 * */
-	public static String getURLEncoder(String url, String enc){
+	public static String getURLEncoder(String url, String enc) {
 		try {
 			return URLEncoder.encode(url, enc);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "";
 	}
+}
+
+// pojo location bean like js window.location obj
+class Location {
+	String hash;
+	String host;
+	String hostname;
+	String href;
+	String origin;
+	String pathname;
+	String port;
+	String protocol;
+	String search;
 }
