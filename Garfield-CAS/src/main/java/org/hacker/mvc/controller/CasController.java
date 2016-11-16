@@ -11,7 +11,6 @@ import org.hacker.common.WebKit;
 import org.hacker.core.BaseController;
 import org.hacker.core.Dict;
 
-import com.alibaba.fastjson.JSONObject;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.ehcache.CacheKit;
 
@@ -27,22 +26,41 @@ import com.jfinal.plugin.ehcache.CacheKit;
  * @author Mr.J
  *
  */
-public class CasController extends BaseController implements CAS {
+public class CasController extends BaseController {
 	Logger log = Logger.getLogger(CasController.class);
 	
+	static CAS casServer = null;
 	// 登陆是否需要验证码
 	static boolean identifyingCode = false;
 	// 秘钥效验ST的安全性
 	static String secretKey;
 	static {
 		secretKey = ProKit.getInfo("play", "cas.secretkey");
+		// init casServer
+		String casServerClass = ProKit.getInfo("play", "cas.serverClass");
+		if(StrKit.isBlank(casServerClass)) {
+			casServerClass = "org.hacker.cas.sso.DefaultCasService";
+		}
+		try {
+			casServer = (CAS) Class.forName(casServerClass).newInstance();
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			throw new Error(e);
+		}
 	}
 
 	public void index() {
 		try {
 			String callBackUrl = getPara("url");
+			
 			checkNotNull(callBackUrl, "url");
-			ticketGrantingService(callBackUrl);
+			
+			String TGT = casServer.ticketGrantingService(getRequest(), getResponse(), callBackUrl);
+			
+			if (StrKit.isBlank(TGT)) {
+				Error(40010, "Oop! Unreliable user credentials, redirect cas login service.");
+				return;
+			}
+			redirectCasClientTakeServiceTicket(TGT, callBackUrl);
 		} catch (Exception e) {
 			Error(500, e.getMessage());
 		}
@@ -56,21 +74,18 @@ public class CasController extends BaseController implements CAS {
 			url 	 = getPara("url"),
 			username = getPara("username"),
 			password = getPara("password");
+			
 			checkNotNull(url, "url");
 			checkNotNull(username, "username");
 			checkNotNull(password, "password");
+			
 			// 这里可以设置配置文件是否支持随机码
 			Credentials credentials = new Credentials(username, password);
-			Object user = authenticationService(credentials);
-			if(user != null) {
-				String TGT = generateTicket();
-				CacheKit.put(Dict.CACHE_TGT, TGT, user);
-				setCookie(TGC, TGT, -1);
+			boolean success = casServer.authenticationService(getRequest(), getResponse(), credentials);
+			if(success) 
 				OK();
-//				redirectCasClientTakeServiceTicket(TGT, url);
-			} else {
+			else 
 				Error(500, "Oop! credentials authentication fail.");
-			}
 		} catch (Exception e) {
 			Error(500, e.getMessage());
 		}
@@ -82,10 +97,13 @@ public class CasController extends BaseController implements CAS {
 			String 
 			sign 		  	 = getPara("sign"),
 			casServiceTicket = getPara("casServiceTicket");
+			
 			checkNotNull(sign, "sign");
 			checkNotNull(casServiceTicket, "casServiceTicket");
 			
 			String TGT = CacheKit.get(Dict.CACHE_ST, casServiceTicket);
+			// ST 只有一次效验机会
+			CacheKit.remove(Dict.CACHE_ST, casServiceTicket);
 			if(StrKit.isBlank(TGT)) {
 				Error(41010, "Oop! Illegal or Invalid casServiceTicket.");
 				return;
@@ -112,40 +130,13 @@ public class CasController extends BaseController implements CAS {
 		}
 	}
 
-	public void logout() {
-		
-	}
-
 	// 图片验证码
 	public void identifyingCode() {
 		renderCaptcha();
 	}
-
-	@Override
-	public Object authenticationService(Credentials credentials) {
-		// 认证用户身份
-//		if() {
-//			
-//		}
-		// 模拟一个用户
-		JSONObject user = new JSONObject();
-		user.put("username", credentials.username);
-		return user;
-	}
-
-	@Override
-	public void ticketGrantingService(String callBackUrl) {
-		// 获取客户浏览器的TGT
-		String TGT = getCookie(TGC);
-		if (StrKit.isBlank(TGT)) {
-			Error(40010, "Oop! Unreliable user credentials, redirect cas login service.");
-			return;
-		}
-		redirectCasClientTakeServiceTicket(TGT, callBackUrl);
-	}
 	
 	public void redirectCasClientTakeServiceTicket() {
-		String TGT = getCookie(TGC);
+		String TGT = getCookie(CAS.TGC);
 		String callBackUrl = getPara("url");
 		redirectCasClientTakeServiceTicket(TGT, callBackUrl);
 	}

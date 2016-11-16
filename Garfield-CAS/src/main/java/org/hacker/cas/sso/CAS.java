@@ -1,5 +1,8 @@
 package org.hacker.cas.sso;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * CAS是一套认证体系
  * 
@@ -52,11 +55,11 @@ public interface CAS {
 	 * AS服务需要实现认证用户credentials，并且发放TGT票据给cas server
 	 * @param credentials 用户认证对象
 	 */
-	public Object authenticationService(Credentials credentials);
+	public boolean authenticationService(HttpServletRequest request, HttpServletResponse response, Credentials credentials);
 	
 	/**
 	 * TGS服务需要实现获取TGT票据，发放ST票据
 	 */
-	public void ticketGrantingService(String callBackUrl);
+	public String ticketGrantingService(HttpServletRequest request, HttpServletResponse response, String callBackUrl);
 	
 }
