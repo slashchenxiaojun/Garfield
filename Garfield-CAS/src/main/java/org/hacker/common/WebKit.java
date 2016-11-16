@@ -3,7 +3,6 @@ package org.hacker.common;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,21 +42,8 @@ public class WebKit {
 	 * 获取现有URI字符串(包含servletPath)，包括请求参数(多个参数用','分割)
 	 * */
 	public static String getPathAndParamter(HttpServletRequest request) {
-		Map<String, String[]> params = request.getParameterMap();
-		String uri = getPath(request) + request.getRequestURI();
-		if(params.size() == 0)
-			return uri;
-		else{
-			uri += "?";
-		}
-		for(String key : params.keySet()) {
-			uri += key + "=";
-				for(String value : params.get(key)) {
-						uri += value + ",";
-				}
-			uri = uri.substring(0,uri.length()-1) + "&";
-		}
-		return uri.substring(0,uri.length()-1);
+		Location location = getLocation(request);
+		return location.href;
 	}
 	
 	/**
