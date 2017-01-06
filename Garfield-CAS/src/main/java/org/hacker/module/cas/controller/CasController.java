@@ -39,7 +39,7 @@ public class CasController extends BaseController {
 		// init casServer
 		String casServerClass = KPro.getInfo("play", "cas.serverClass");
 		if(StrKit.isBlank(casServerClass)) {
-			casServerClass = "org.hacker.cas.sso.DefaultCasService";
+			casServerClass = "org.hacker.module.cas.server.DefaultCasService";
 		}
 		try {
 			casServer = (CAS) Class.forName(casServerClass).newInstance();
