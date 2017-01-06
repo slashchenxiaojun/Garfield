@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.beetl.core.BeetlKit;
 
+import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 
@@ -37,6 +38,7 @@ public class SQL {
 	
 	public static String get(String id, Map<String, Object> paras){
 		String _sql = _id_sql.get(id);
+		if(StrKit.isBlank(_sql)) throw new Error("Oop~ start SQLPlugin frist.");
 		return BeetlKit.render(_sql, paras);
 	}
 	

@@ -3,7 +3,7 @@ package org.hacker.aop.handler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hacker.common.WebKit;
+import org.hacker.module.common.KWeb;
 
 import com.jfinal.handler.Handler;
 
@@ -21,7 +21,7 @@ public class GlobalHandler extends Handler {
 	public void handle(String target, HttpServletRequest request,
 			HttpServletResponse response, boolean[] isHandled) {
 		// 设置全局属性: web根路径
-		request.setAttribute("base", WebKit.getPath(request));
+		request.setAttribute("base", KWeb.getPath(request));
 		next.handle(target, request, response, isHandled);
 	}
 

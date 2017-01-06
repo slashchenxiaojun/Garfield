@@ -3,8 +3,8 @@ package org.hacker.core;
 import java.util.Date;
 import java.util.List;
 
-import org.hacker.common.CodeKit;
 import org.hacker.core.plugin.Table;
+import org.hacker.module.common.KCode;
 
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.activerecord.Model;
@@ -24,7 +24,7 @@ public abstract class BaseModel<M extends Model<M>> extends Model<M> {
 	@Override
 	public boolean save() {
 		//这里默认了主键的名字为'id'
-		this.set(TableMapping.me().getTable(getClass()).getPrimaryKey()[0], CodeKit.UUID().replace("-", ""));
+		this.set(TableMapping.me().getTable(getClass()).getPrimaryKey()[0], KCode.UUID().replace("-", ""));
 		com.jfinal.plugin.activerecord.Table table = TableMapping.me().getTable(getClass());
 		if(table.getColumnTypeMap().containsKey("create_date")){
 			this.set("create_date", new Date());
@@ -40,7 +40,7 @@ public abstract class BaseModel<M extends Model<M>> extends Model<M> {
 	 * @return
 	 */
 	public String saveAndReturnID() {
-		String id = CodeKit.UUID().replace("-", "");
+		String id = KCode.UUID().replace("-", "");
 		this.set(TableMapping.me().getTable(getClass()).getPrimaryKey()[0], id);
 		if(super.save())
 			return id;
