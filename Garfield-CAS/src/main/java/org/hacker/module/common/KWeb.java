@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * A Web helper tools
@@ -77,6 +79,51 @@ public class KWeb {
     }
     return null;
   }
+  
+  public static String getCookie(HttpServletRequest request, String name) {
+    return getCookie(request, name, null);
+  }
+  
+  public static String getCookie(HttpServletRequest request, String name, String defaultValue) {
+    Cookie cookie = getCookieObject(request, name);
+    return cookie != null ? cookie.getValue() : defaultValue;
+  }
+  
+  public static Cookie getCookieObject(HttpServletRequest request, String name) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null)
+      for (Cookie cookie : cookies)
+        if (cookie.getName().equals(name))
+          return cookie;
+    return null;
+  }
+  
+  public static void setCookie(HttpServletResponse response, String name, String value) {
+    doSetCookie(response, name, value, -1, null, null, null);
+  }
+  
+  public static void setCookie(HttpServletResponse response, String name, String value, int maxAgeInSeconds) {
+    doSetCookie(response, name, value, maxAgeInSeconds, null, null, null);
+  }
+  
+  private static void doSetCookie(HttpServletResponse response, String name, String value, int maxAgeInSeconds, String path, String domain, Boolean isHttpOnly) {
+    Cookie cookie = new Cookie(name, value);
+    cookie.setMaxAge(maxAgeInSeconds);
+    // set the default path value to "/"
+    if (path == null) {
+      path = "/";
+    }
+    cookie.setPath(path);
+    
+    if (domain != null) {
+      cookie.setDomain(domain);
+    }
+    if (isHttpOnly != null) {
+      cookie.setHttpOnly(isHttpOnly);
+    }
+    response.addCookie(cookie);
+  }
+  
 }
 
 // pojo location bean like js window.location obj

@@ -25,4 +25,5 @@ public interface CasClientService {
 	 * @return user obj
 	 */
 	public Object getUserCache();
+	
 }

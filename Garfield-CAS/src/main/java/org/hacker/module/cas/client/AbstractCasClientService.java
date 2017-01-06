@@ -1,6 +1,5 @@
 package org.hacker.module.cas.client;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,10 +23,4 @@ public abstract class AbstractCasClientService implements CasClientService {
     this.response = response;
   }
   
-  public void addCookice(String name, String value, int maxAge) {
-    Cookie cookie = new Cookie(name, value);
-    cookie.setMaxAge(maxAge);
-    cookie.setPath("/");
-    getResponse().addCookie(cookie);
-  }
 }

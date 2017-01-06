@@ -1,11 +1,11 @@
 package org.hacker.module.cas.server;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hacker.core.Dict;
 import org.hacker.module.common.KCode;
+import org.hacker.module.common.KWeb;
 
 import com.jfinal.plugin.ehcache.CacheKit;
 
@@ -17,10 +17,7 @@ public class AbstractCasService implements CAS {
 		if(user != null) {
 			String TGT = generateTicket();
 			CacheKit.put(Dict.CACHE_TGT, TGT, user);
-			Cookie cookie = new Cookie(TGC, TGT);
-			cookie.setMaxAge(-1);
-			cookie.setPath("/");
-			response.addCookie(cookie);
+			KWeb.setCookie(response, TGC, TGT);
 			return true;
 		}
 		return false;
@@ -29,12 +26,7 @@ public class AbstractCasService implements CAS {
 	@Override
 	public String ticketGrantingService(HttpServletRequest request, HttpServletResponse response, String callBackUrl) {
 		// 获取客户浏览器的TGT
-		String TGT = null;
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null)
-			for (Cookie cookie : cookies)
-				if (cookie.getName().equals(TGC))
-					TGT = cookie != null ? cookie.getValue() : "";
+		String TGT = KWeb.getCookie(request, TGC, "");
 		return TGT;
 	}
 	

@@ -1,8 +1,7 @@
 package org.hacker.module.cas.client;
 
-import javax.servlet.http.Cookie;
-
 import org.hacker.module.common.KCode;
+import org.hacker.module.common.KWeb;
 
 import com.jfinal.kit.HttpKit;
 import com.jfinal.plugin.ehcache.CacheKit;
@@ -25,21 +24,13 @@ public class DefaultCasClientService extends AbstractCasClientService {
 	@Override
 	public void setUserCache(Object user) {
 		String uuid = KCode.UUID();
-		Cookie cookie = new Cookie(USER_COOKIE_NAME, uuid);
-		cookie.setMaxAge(-1);
-		cookie.setPath("/");
-		getResponse().addCookie(cookie);
+		KWeb.setCookie(getResponse(), USER_COOKIE_NAME, uuid);
 		CacheKit.put(USER_CACHE_NAME, uuid, user);
 	}
 
 	@Override
 	public Object getUserCache() {
-		String session = null;
-		Cookie[] cookies = getRequest().getCookies();
-		if (cookies != null)
-			for (Cookie cookie : cookies)
-				if (cookie.getName().equals(USER_COOKIE_NAME))
-					session = cookie != null ? cookie.getValue() : "";
+		String session = KWeb.getCookie(getRequest(), USER_COOKIE_NAME, "");
 		return CacheKit.get(USER_CACHE_NAME, session);
 	}
 
