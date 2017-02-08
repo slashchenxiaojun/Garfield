@@ -12,8 +12,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hacker.exception.ApiException;
-
 /**
  * A File helper tools
  * 
@@ -34,10 +32,9 @@ public class KFile {
    */
 	public static void findAllByName(File src, List<File> out, String fileEndName) throws FileNotFoundException {
 		validateFile(src);
-		if(src.isFile()) throw new ApiException("Oop~ src is file.");
+		if(src.isFile()) throw new Error("Oop~ src is file.");
 		File[] tmpfiles = src.listFiles();
-		if (tmpfiles == null)
-			return;
+		if(tmpfiles == null) return;
 		for(int i = 0; i < tmpfiles.length; i++) {
 			if(tmpfiles[i].isDirectory()) {
 				findAllByName(tmpfiles[i], out, fileEndName);
