@@ -34,8 +34,10 @@ public class CasController extends BaseController {
 	static boolean identifyingCode = false;
 	// 秘钥效验ST的安全性
 	static String secretKey;
+	static String loginStyle;
 	static {
 		secretKey = KPro.getInfo("play", "cas.secretkey");
+		loginStyle = KPro.getInfo("play", "login.style");
 		// init casServer
 		String casServerClass = KPro.getInfo("play", "cas.serverClass");
 		if(StrKit.isBlank(casServerClass)) {
@@ -66,12 +68,17 @@ public class CasController extends BaseController {
 		}
 	}
 
-	public void login() {}
+	public void login() {
+	  String style = getPara("style");
+	  if (StrKit.isBlank(style)) style = loginStyle;
+	  if (style.indexOf(".html") == -1) style += "/index.html";
+	  render(style);
+	}
 	
 	public void credentialsAuthentication() {
 		try {
 			String 
-			url 	 = getPara("url"),
+			url 	   = getPara("url"),
 			username = getPara("username"),
 			password = getPara("password");
 			
@@ -95,7 +102,7 @@ public class CasController extends BaseController {
 	public void serviceTicketAuthentication() {
 		try {
 			String 
-			sign 		  	 = getPara("sign"),
+			sign 		  	     = getPara("sign"),
 			casServiceTicket = getPara("casServiceTicket");
 			
 			checkNotNull(sign, "sign");

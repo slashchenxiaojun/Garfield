@@ -22,7 +22,7 @@ public class WebConfig extends JFinalConfig{
 	public void configConstant(Constants me) {
 		loadPropertyFile("play.properties");
 		me.setDevMode(getPropertyToBoolean(Dict.CONFIG_JFINAL_MODE, false));
-		me.setBaseViewPath("WEB-INF/views");
+		me.setBaseViewPath("/");
 		me.setMainRenderFactory(new BeetlRenderFactory(PathKit.getWebRootPath()));
 	}
 
@@ -45,6 +45,6 @@ public class WebConfig extends JFinalConfig{
 	}
 	
 	public static void main(String[] args){
-	  JFinal.start("webapp", 8080, "/", 1);
+	  JFinal.start("src/main/webapp", 8080, "/garfield", 1);
 	}
 }

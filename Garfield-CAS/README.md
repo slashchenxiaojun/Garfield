@@ -43,4 +43,7 @@
 'secretKey' is verification key, the key you can configure in play.properties of cas's project what property is 'cas.secretkey'
 
 8. run your web project and play it.
- 
+
+##how to use cas with your web project
+
+###
